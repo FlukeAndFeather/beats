@@ -5,7 +5,6 @@
 #'
 #' @param ube_path Path to UBE file.
 #' @return A tibble with columns timestamp (POSIXct) and ecg (numeric)
-#' @importFrom dplyr %>%
 #' @export
 read_ube <- function(ube_path) {
   # Read the raw data
