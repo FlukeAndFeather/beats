@@ -18,7 +18,8 @@ Imports:
     readr,
     shiny,
     tibble,
-    zeallot
+    zeallot,
+    zoo
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
