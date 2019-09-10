@@ -12,15 +12,44 @@ find_hr(data)
 \value{
 A data.frame with columns
 \itemize{
-\item timestamp (POSIXct)
-\item ecg (numeric)
-\item period_s (numeric)
-\item freq_hz (numeric)
-\item freq_bpm (numeric)
+\item timestamp (time of heart beat, POSIXct)
+\item ecg (raw value of ECG peak)
+\item period_s (period in seconds to next heart beat)
+\item freq_hz (heart rate in Hz)
+\item freq_bpm (heart rate in beats per minute)
 }
 }
 \description{
 \code{find_hr} is an interactive tool for processing ECG data to get heart
-rate profiles. Use this tool to identify individual heart beats and gaps in
+rate profiles. Use it to identify individual heart beats and gaps in ECG
 the ECG data.
+}
+\details{
+The GUI is divided into a side panel with controls and a main panel
+with plots. The side panel has controls for choosing the interaction mode,
+exporting results, and exiting. The main panel shows up to three plots for
+viewing and interacting with the data. As you interact with the plots,
+more detailed views appear.
+\enumerate{
+\item The top plot shows the entire ECG profile, including data before and
+after deployment. Brush (click and drag) the part of the profile with
+the deployment itself.
+\item The middle plot is a profile of the deployment. Brush it to zoom in to
+shorter periods so you can see individual heart beats.
+\item The bottom plot shows data in the most detailed view. Clicking and
+brushing the data will add/clear heart beats and gaps.
+}
+
+There are five interaction modes. In "Add heart beat" mode, clicking will
+add a heart beat on the nearest peak (should be the QRS complex). "Clear
+heart beat" will remove the nearest beat. Use "Add gap" to brush areas
+with unusable data, to avoid artifically low heart rates. Overlapping gaps
+are merged automatically. In "Clear gap" mode, click on gaps to clear
+them. "Set beat threshold" adds heart beats in bulk. Clicking will add a
+heart beat to every peak higher than the click point. This will only add
+beats to the part of the data visible in the detail plot.
+
+There are two buttons at the bottom of the side panel for when you're done
+using the tool. "Download heart beats" exports the heart rate data to CSV
+and "Finish and return data.frame" quits the tool and returns the result.
 }
