@@ -178,7 +178,7 @@ prepare_beats <- function(beats, gaps) {
     dplyr::mutate(period_s = as.numeric(dplyr::lead(timestamp) - timestamp,
                                         unit = "secs"),
                   freq_hz = 1 / period_s,
-                  freq_bpm = period_s * 60)
+                  freq_bpm = freq_hz * 60)
   unk_beats <- purrr::map_int(gaps$timestamp_begin,
                               ~ which.max(beats$timestamp[beats$timestamp < .x]))
   result[unk_beats, -1] <- NA
