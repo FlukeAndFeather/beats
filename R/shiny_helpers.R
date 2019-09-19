@@ -23,6 +23,7 @@ plot_profile <- function(this_data, box, beats = NULL) {
   p <- ggplot2::ggplot(data_sparse, ggplot2::aes(timestamp, ecg)) +
     ggplot2::geom_line(size = 0.1) +
     ggplot2::scale_x_datetime(breaks = date_breaks) +
+    ggplot2::ylim(0, 4095) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.title = ggplot2::element_blank())
 
@@ -163,6 +164,7 @@ plot_detail <- function(data, beats, gaps, click, brush, mode) {
                          fill = "blue",
                          alpha = 0.1) +
       ggplot2::scale_x_datetime(date_labels = "%H:%M:%S") +
+      ggplot2::ylim(0, 4095) +
       ggplot2::labs(title = sprintf("beats:%d;gaps:%d", nrow(beats), nrow(gaps))) +
       ggplot2::theme_classic() +
       ggplot2::theme(axis.title = ggplot2::element_blank())
