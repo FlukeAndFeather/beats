@@ -48,7 +48,7 @@ hr_server <- function(data) {
 
     # Finish and return beats
     shiny::observeEvent(input$done, {
-      shiny::stopApp(returnValue = prepare_csv(values$heart_beats, values$ecg_gaps))
+      shiny::stopApp(returnValue = prepare_beats(values$heart_beats, values$ecg_gaps))
     })
 
     output$data_plot <- shiny::renderPlot({
