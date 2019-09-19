@@ -187,7 +187,7 @@ prepare_beats <- function(beats, gaps) {
                   freq_bpm = freq_hz * 60)
   unk_beats <- purrr::map_int(gaps$timestamp_begin,
                               ~ which.max(beats$timestamp[beats$timestamp < .x]))
-  result[unk_beats, -1] <- NA
+  result[unk_beats, -c("timestamp", "ecg")] <- NA
   result
 }
 # prepare_rdata
