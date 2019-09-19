@@ -150,6 +150,10 @@ plot_detail <- function(data, beats, gaps, click, brush, mode) {
     }
 
     # Create plot
+    # Align time zone with profile plots
+    tz <- attr(data_sparse$timestamp, "tzone")
+    if (tz == "")
+      tz <- Sys.timezone()
     p <- ggplot2::ggplot(data_sparse, ggplot2::aes(timestamp, ecg)) +
       ggplot2::geom_line(size = 0.1) +
       ggplot2::geom_point(data = beats_visible,
@@ -163,7 +167,7 @@ plot_detail <- function(data, beats, gaps, click, brush, mode) {
                          inherit.aes = FALSE,
                          fill = "blue",
                          alpha = 0.1) +
-      ggplot2::scale_x_datetime(date_labels = "%H:%M:%S") +
+      ggplot2::scale_x_datetime(date_labels = "%H:%M:%S", timezone = tz) +
       ggplot2::ylim(0, 4095) +
       ggplot2::labs(title = sprintf("beats:%d;gaps:%d", nrow(beats), nrow(gaps))) +
       ggplot2::theme_classic() +
