@@ -151,7 +151,7 @@ plot_detail <- function(data, beats, gaps, click, brush, mode) {
 
     # Create plot
     # Align time zone with profile plots
-    tz <- attr(data_sparse$timestamp, "tzone")
+    tz <- lubridate::tz(data_sparse$timestamp)
     if (tz == "")
       tz <- Sys.timezone()
     p <- ggplot2::ggplot(data_sparse, ggplot2::aes(timestamp, ecg)) +
