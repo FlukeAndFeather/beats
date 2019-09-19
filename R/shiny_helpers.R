@@ -99,7 +99,7 @@ plot_detail <- function(data, beats, gaps, click, brush, mode) {
                                       timestamp < data$timestamp[nearest_ecg] + 0.5)
         nearest_peak <- dplyr::filter(search_range, ecg == max(ecg)) %>% dplyr::slice(1)
         if (!nearest_peak$timestamp %in% beats$timestamp)
-          beats <- rbind(beats, nearest_peak)
+          beats <- dplyr::arrange(rbind(beats, nearest_peak), timestamp)
       } else if (mode == 2) { # Clear beat
         if (nrow(beats_visible) > 0) {
           nearest_beat <- which.min(abs(click$x - as.numeric(beats_visible$timestamp)))
