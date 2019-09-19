@@ -16,3 +16,9 @@ A tibble with columns timestamp (POSIXct) and ecg (numeric)
 \code{read_ube} parses a binary UBE file, returning a data frame with ECG
 records and timestamps
 }
+\examples{
+# File path to sample data
+fp <- system.file("extdata", "max_ecg_190826b.ube", package = "beats")
+# Read ube file
+ecg_data <- read_ube(fp)
+}

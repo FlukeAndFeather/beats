@@ -5,6 +5,11 @@
 #'
 #' @param ube_path Path to UBE file.
 #' @return A tibble with columns timestamp (POSIXct) and ecg (numeric)
+#' @examples
+#' # File path to sample data
+#' fp <- system.file("extdata", "max_ecg_190826b.ube", package = "beats")
+#' # Read ube file
+#' ecg_data <- read_ube(fp)
 #' @export
 read_ube <- function(ube_path) {
   # Read the raw data
