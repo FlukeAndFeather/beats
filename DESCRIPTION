@@ -1,7 +1,7 @@
 Package: beats
 Type: Package
 Title: Import and Process ECG Data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: person("Max", "Czapanskiy", email = "maxczapanskiy@gmail.com",
                   role = c("aut", "cre"))
 Maintainer: Max Czapanskiy <maxczapanskiy@gmail.com>
