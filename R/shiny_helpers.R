@@ -53,13 +53,11 @@ plot_ecg <- function(data, beats = NULL, gaps = NULL, detail = FALSE) {
     if (nrow(gaps_visible) > 0) {
       gaps_visible <- gaps_visible %>%
         dplyr::mutate(gap_xmin = pmax(min(data$timestamp), timestamp_begin),
-                      gap_xmax = pmin(max(data$timestamp), timestamp_end),
-                      gap_ymin = min(data$ecg),
-                      gap_ymax = max(data$ecg))
+                      gap_xmax = pmin(max(data$timestamp), timestamp_end))
       p <- p + ggplot2::geom_rect(ggplot2::aes(xmin = gap_xmin,
                                                xmax = gap_xmax,
-                                               ymin = gap_ymin,
-                                               ymax = gap_ymax),
+                                               ymin = 0,
+                                               ymax = 4095),
                                   gaps_visible,
                                   inherit.aes = FALSE,
                                   fill = "blue",
@@ -155,10 +153,13 @@ add_gap <- function(data, brush, beats, gaps) {
     dplyr::arrange(timestamp_begin)
 
   # Remove beats under gap
-  new_beats <- dplyr::filter(beats,
-                             !dplyr::between(timestamp,
-                                             new_gap$timestamp_begin,
-                                             new_gap$timestamp_end))
+  new_beats <- beats
+  if (!is.null(beats) && nrow(beats) > 0) {
+    new_beats <- dplyr::filter(beats,
+                               !dplyr::between(timestamp,
+                                               new_gap$timestamp_begin,
+                                               new_gap$timestamp_end))
+  }
 
   # Merge overlapping gaps
   last_end <- max(c(new_gaps$timestamp_end, new_gaps$timestamp_end)) + 1
@@ -212,7 +213,7 @@ beat_thr <- function(data, click, beats, gaps) {
     if (nrow(visible_gaps) > 0) {
       # utility function, checks if a timestamp falls in any visible gap
       is_under_gap <- function(t) {
-        purrr::map(t, function(t) {
+        purrr::map_lgl(t, function(t) {
           any(t >= visible_gaps$timestamp_begin &
                 t <= visible_gaps$timestamp_end)
         })
@@ -247,9 +248,13 @@ prepare_beats <- function(beats, gaps) {
                                         unit = "secs"),
                   freq_hz = 1 / period_s,
                   freq_bpm = freq_hz * 60)
-  unk_beats <- purrr::map_int(gaps$timestamp_begin,
-                              ~ which.max(beats$timestamp[beats$timestamp < .x]))
-  result[unk_beats, -c("timestamp", "ecg")] <- NA
+  # Find the heart beat before each gap and remove period/freq
+  gap_beats <- unique(findInterval(gaps$timestamp_begin, result$timestamp))
+  gap_beats <- gap_beats[gap_beats > 0]
+  # Keep timestamp and ecg (cols 1 and 2) but set everything else to NA
+  result[gap_beats, -(1:2)] <- NA
+
+  # Return result
   result
 }
 # prepare_rdata
