@@ -10,11 +10,11 @@ hr_ui <- shiny::fillPage(
   shiny::sidebarLayout(
     shiny::sidebarPanel(shiny::radioButtons("mode",
                                             "Interaction mode",
-                                            list(`Add heart beat` = 1,
-                                                 `Clear heart beat` = 2,
-                                                 `Add gap` = 3,
-                                                 `Clear gap` = 4,
-                                                 `Set beat threshold` = 5)),
+                                            list(`Add heart beat` = "add_beat",
+                                                 `Clear heart beat` = "clear_beat",
+                                                 `Add gap` = "add_gap",
+                                                 `Clear gap` = "clear_gap",
+                                                 `Set beat threshold` = "beat_thr")),
                         shiny::downloadButton("output_csv", "Download heart beats (.csv)"),
                         shiny::actionButton("done", "Finish and return data.frame")),
     shiny::mainPanel(
@@ -37,44 +37,54 @@ hr_server <- function(data) {
   shiny::shinyServer(function(input, output, session) {
     values <- shiny::reactiveValues(ecg_data = data)
 
-    # When brushing, remove downstream brushes and data
+    # When brushing profiles, remove downstream brushes and update data
     shiny::observeEvent(input$data_brush, {
       session$resetBrush("deploy_brush")
       session$resetBrush("detail_brush")
+      values$ecg_deploy <- subdata(shiny::isolate(values$ecg_data),
+                                   input$data_brush)
     })
     shiny::observeEvent(input$deploy_brush, {
       session$resetBrush("detail_brush")
+      values$ecg_detail <- subdata(shiny::isolate(values$ecg_deploy),
+                                    input$deploy_brush)
     })
 
-    # Finish and return beats
-    shiny::observeEvent(input$done, {
-      shiny::stopApp(returnValue = prepare_beats(values$heart_beats, values$ecg_gaps))
+    # Handle clicking and brushing on detail plot
+    shiny::observeEvent(input$detail_click, {
+      result <- handle_detail_click(shiny::isolate(values$ecg_detail),
+                                    input$detail_click,
+                                    shiny::isolate(input$mode),
+                                    shiny::isolate(values$heart_beats),
+                                    shiny::isolate(values$ecg_gaps))
+      # Update heart_beats and ecg_gaps
+      values$heart_beats <- result$heart_beats
+      values$ecg_gaps <- result$ecg_gaps
+    })
+    shiny::observeEvent(input$detail_brush, {
+      result <- handle_detail_brush(shiny::isolate(values$ecg_detail),
+                                    input$detail_brush,
+                                    shiny::isolate(input$mode),
+                                    shiny::isolate(values$heart_beats),
+                                    shiny::isolate(values$ecg_gaps))
+      # Update heart_beats and ecg_gaps
+      values$heart_beats <- result$heart_beats
+      values$ecg_gaps <- result$ecg_gaps
     })
 
-    output$data_plot <- shiny::renderPlot({
-      c(deploy, p) %<-% plot_profile(this_data = values$ecg_data,
-                                     box = input$data_brush)
-      values$ecg_deploy <- deploy
-      p
-    })
-    output$deploy_plot <- shiny::renderPlot({
-      c(detail, p) %<-% plot_profile(this_data = values$ecg_deploy,
-                                     box = input$deploy_brush,
-                                     beats = values$heart_beats)
-      values$ecg_detail <- detail
-      p
-    })
-    output$detail_plot <- shiny::renderPlot({
-      c(p, beats, gaps) %<-% plot_detail(values$ecg_detail,
-                                         shiny::isolate(values$heart_beats),
-                                         shiny::isolate(values$ecg_gaps),
-                                         input$detail_click,
-                                         input$detail_brush,
-                                         shiny::isolate(input$mode))
-      values$heart_beats <- beats
-      values$ecg_gaps <- gaps
-      p
-    })
+    # Data plot (profile of all data)
+    output$data_plot <- shiny::renderPlot(plot_ecg(values$ecg_data))
+    # Deploy plot (profile of deployment data)
+    output$deploy_plot <- shiny::renderPlot(plot_ecg(values$ecg_deploy,
+                                                     values$heart_beats,
+                                                     values$ecg_gaps))
+    # Detail plot (zoomed in data)
+    output$detail_plot <- shiny::renderPlot(plot_ecg(values$ecg_detail,
+                                                     values$heart_beats,
+                                                     values$ecg_gaps,
+                                                     detail = TRUE))
+
+    # Download CSV
     output$output_csv <- shiny::downloadHandler(
       filename = function() {
         format(lubridate::now(), "ecg_%y%m%d%H%M%S.csv")
@@ -84,5 +94,11 @@ hr_server <- function(data) {
                                      values$ecg_gaps),
                          file)
       })
+
+    # Finish and return beats
+    shiny::observeEvent(input$done, {
+      shiny::stopApp(returnValue = prepare_beats(values$heart_beats,
+                                                 values$ecg_gaps))
+    })
   })
 }

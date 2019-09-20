@@ -1,16 +1,10 @@
-# plot_profile
-# Input: plot data and brush box
-# Output: brushed data and plot
-# c(deploy, plot) %<-% plot_profile(values$ecg_data, input$data_brush)
-plot_profile <- function(this_data, box, beats = NULL) {
-  sub_data <- NULL
-  # If no data yet, return a blank plot
-  if (is.null(this_data))
-    return(list(sub_data, ggplot2::ggplot(NULL)))
+# Plot an ECG profile
+plot_ecg <- function(data, beats = NULL, gaps = NULL, detail = FALSE) {
+  shiny::req(data)
 
   # Maximum 10,000 points
-  data_sparse <- this_data %>%
-    dplyr::slice(seq(1, nrow(this_data), length.out = 1e4))
+  data_sparse <- data %>%
+    dplyr::slice(seq(1, nrow(data), length.out = 1e4))
 
   # Date breaks
   date_rng <- max(data_sparse$timestamp) - min(data_sparse$timestamp)
@@ -19,60 +13,40 @@ plot_profile <- function(this_data, box, beats = NULL) {
                      max(data_sparse$timestamp) - offset * date_rng,
                      length.out = 5)
 
+  # Profile plots show dates in ymd hms, detail is just hms
+  tz <- lubridate::tz(data_sparse$timestamp)
+  if (tz == "")
+    tz <- Sys.timezone()
+  if (detail) {
+    lbl <- "%H:%M:%S"
+  } else {
+    lbl <- "%y-%m-%d %H:%M"
+  }
+  x_scale <- ggplot2::scale_x_datetime(date_labels = lbl,
+                                       timezone = tz,
+                                       breaks = date_breaks)
+
   # Plot
   p <- ggplot2::ggplot(data_sparse, ggplot2::aes(timestamp, ecg)) +
     ggplot2::geom_line(size = 0.1) +
-    ggplot2::scale_x_datetime(breaks = date_breaks) +
+    x_scale +
     ggplot2::ylim(0, 4095) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.title = ggplot2::element_blank())
-
-  # Brushed data
-  if (!is.null(box)) {
-    sub_data <- dplyr::filter(this_data,
-                              dplyr::between(timestamp, box$xmin, box$xmax))
-  }
 
   # Add points for heart beats
   if (!is.null(beats)) {
     beats_visible <- dplyr::filter(beats,
                                    dplyr::between(timestamp,
-                                                  dplyr::first(this_data$timestamp),
-                                                  dplyr::last(this_data$timestamp)))
-    p <- p + ggplot2::geom_point(data = beats_visible, shape = 3, color = "red")
+                                                  dplyr::first(data$timestamp),
+                                                  dplyr::last(data$timestamp)))
+    p <- p + ggplot2::geom_point(data = beats_visible,
+                                 shape = 3,
+                                 color = "red")
   }
 
-  list(sub_data, p)
-}
-
-# plot_detail
-# Input: plot data
-# Output: plot
-#output$detail_plot <- renderPlot({ plot_detail(values$ecg_detail) })
-plot_detail <- function(data, beats, gaps, click, brush, mode) {
-  tryCatch({
-    # If no data yet, return a blank plot
-    if (is.null(data))
-      return(list(NULL, beats, gaps))
-
-    # Maximum 10,000 points
-    data_sparse <- data %>%
-      dplyr::slice(seq(1, nrow(data), length.out = 1e4))
-
-    # Which heart beats and ECG gaps are visible?
-    if (is.null(beats)) {
-      beats <- dplyr::filter(data, FALSE)
-    }
-    if (is.null(gaps)) {
-      # Create a dummy table. No rows, time zone set to UTC.
-      gaps <- tibble::tibble(timestamp_begin = lubridate::now("UTC"),
-                             timestamp_end = lubridate::now("UTC")) %>%
-        dplyr::filter(FALSE)
-    }
-    beats_visible <- dplyr::filter(beats,
-                                   dplyr::between(timestamp,
-                                                  min(data$timestamp),
-                                                  max(data$timestamp)))
+  # Add rects for gaps
+  if (!is.null(gaps)) {
     gaps_visible <- dplyr::filter(gaps,
                                   timestamp_end > min(data$timestamp),
                                   timestamp_begin < max(data$timestamp))
@@ -82,98 +56,186 @@ plot_detail <- function(data, beats, gaps, click, brush, mode) {
                       gap_xmax = pmin(max(data$timestamp), timestamp_end),
                       gap_ymin = min(data$ecg),
                       gap_ymax = max(data$ecg))
-    } else {
-      gaps_visible <- gaps_visible %>%
-        dplyr::mutate(gap_xmin = NA,
-                      gap_xmax = NA,
-                      gap_ymin = NA,
-                      gap_ymax = NA)
+      p <- p + ggplot2::geom_rect(ggplot2::aes(xmin = gap_xmin,
+                                               xmax = gap_xmax,
+                                               ymin = gap_ymin,
+                                               ymax = gap_ymax),
+                                  gaps_visible,
+                                  inherit.aes = FALSE,
+                                  fill = "blue",
+                                  alpha = 0.1)
     }
+  }
 
-    # Add/remove beats/gaps
-    if (!is.null(click)) {
-      nearest_ecg <- which.min(abs(click$x - as.numeric(data$timestamp)))
-      if (mode == 1) { # Add beat
-        search_range <- dplyr::filter(data,
-                                      timestamp > data$timestamp[nearest_ecg] - 0.5,
-                                      timestamp < data$timestamp[nearest_ecg] + 0.5)
-        nearest_peak <- dplyr::filter(search_range, ecg == max(ecg)) %>% dplyr::slice(1)
-        if (!nearest_peak$timestamp %in% beats$timestamp)
-          beats <- dplyr::arrange(rbind(beats, nearest_peak), timestamp)
-      } else if (mode == 2) { # Clear beat
-        if (nrow(beats_visible) > 0) {
-          nearest_beat <- which.min(abs(click$x - as.numeric(beats_visible$timestamp)))
-          drop_timestamp <- beats_visible$timestamp[nearest_beat]
-          if (abs(click$x - as.numeric(drop_timestamp)) < 0.5) {
-            beats <- dplyr::filter(beats, timestamp != drop_timestamp)
-          }
-        }
-      } else if (mode == 4) { # clear gap
-        gap <- which(click$x > gaps$timestamp_begin & click$x < gaps$timestamp_end)
-        if (length(gap) == 1)
-          gaps <- dplyr::slice(gaps, -gap)
-      } else if (mode == 5) { # set beat threshold
-        # Look for peaks in 1s windows
-        window_size <- 100
-        local_peaks <- zoo::rollapply(data$ecg,
-                                      window_size,
-                                      function(x) which.max(x) == window_size / 2,
-                                      partial = TRUE)
-        local_peaks[data$ecg < click$y] <- FALSE
-        beats <- rbind(beats, data[local_peaks,])
+  p
+}
+
+# Handle clicking on detail plot
+handle_detail_click <- function(data, click, mode, beats, gaps) {
+  # Wait for data and a click
+  shiny::req(data, click)
+  switch (mode,
+          add_beat = add_beat(data, click, beats, gaps),
+          clear_beat = clear_beat(data, click, beats, gaps),
+          clear_gap = clear_gap(data, click, beats, gaps),
+          beat_thr = beat_thr(data, click, beats, gaps),
+          list(heart_beats = beats,
+               ecg_gaps = gaps)
+  )
+}
+
+# Handle brushing the detail plot
+handle_detail_brush <- function(data, brush, mode, beats, gaps) {
+  # Wait for data and a brush
+  shiny::req(data, brush)
+  switch (mode,
+          add_gap = add_gap(data, brush, beats, gaps),
+          list(heart_beats = beats,
+               ecg_gaps = gaps)
+  )
+}
+
+# Add heart beat
+add_beat <- function(data, click, beats, gaps) {
+  nearest_ecg <- which.min(abs(click$x - as.numeric(data$timestamp)))
+  # Look for a peak within 0.5s
+  search_range <- dplyr::filter(data,
+                                timestamp > data$timestamp[nearest_ecg] - 0.5,
+                                timestamp < data$timestamp[nearest_ecg] + 0.5)
+  nearest_peak <- dplyr::filter(search_range, ecg == max(ecg)) %>%
+    dplyr::slice(1)
+  # Add peak to beats
+  new_beats <- rbind(nearest_peak, beats) %>%
+    # Sort chronologically
+    dplyr::arrange(timestamp) %>%
+    # Remove duplicates
+    dplyr::distinct()
+
+  # Return beats and gaps
+  list(heart_beats = new_beats,
+       ecg_gaps = gaps)
+}
+
+# Clear heart beat
+clear_beat <- function(data, click, beats, gaps) {
+  new_beats <- beats
+
+  # Filter beats to visible in details
+  beats_visible <- dplyr::filter(beats,
+                                 dplyr::between(timestamp,
+                                                dplyr::first(data$timestamp),
+                                                dplyr::last(data$timestamp)))
+
+  # If any beats are visible...
+  if (nrow(beats_visible) > 0) {
+    nearest_beat <- which.min(abs(click$x - as.numeric(beats_visible$timestamp)))
+    drop_timestamp <- beats_visible$timestamp[nearest_beat]
+    # ... drop the closest one within 0.5s
+    if (abs(click$x - as.numeric(drop_timestamp)) < 0.5) {
+      new_beats <- dplyr::filter(beats, timestamp != drop_timestamp)
+    }
+  }
+
+  # Return beats and gaps
+  list(heart_beats = new_beats,
+       ecg_gaps = gaps)
+}
+
+# Add a gap
+add_gap <- function(data, brush, beats, gaps) {
+  # Nearest points to brush borders define the new gap
+  nearest_ecg <- integer(2)
+  nearest_ecg[1] <- which.min(abs(brush$xmin - as.numeric(data$timestamp)))
+  nearest_ecg[2] <- which.min(abs(brush$xmax - as.numeric(data$timestamp)))
+  new_gap <- data.frame(timestamp_begin = data$timestamp[nearest_ecg[1]],
+                        timestamp_end = data$timestamp[nearest_ecg[2]])
+
+  # Add new_gap to gaps
+  new_gaps <- rbind(gaps, new_gap) %>%
+    dplyr::arrange(timestamp_begin)
+
+  # Remove beats under gap
+  new_beats <- dplyr::filter(beats,
+                             !dplyr::between(timestamp,
+                                             new_gap$timestamp_begin,
+                                             new_gap$timestamp_end))
+
+  # Merge overlapping gaps
+  last_end <- max(c(new_gaps$timestamp_end, new_gaps$timestamp_end)) + 1
+  overlapping <- which(new_gaps$timestamp_end > dplyr::lead(new_gaps$timestamp_begin))
+  while (length(overlapping) > 0) {
+    i <- overlapping[1]
+    new_gaps$timestamp_end[i] <- new_gaps$timestamp_end[i + 1]
+    new_gaps <- new_gaps[-(i + 1), ]
+    overlapping <- which(new_gaps$timestamp_end > dplyr::lead(new_gaps$timestamp_begin))
+  }
+
+  list(heart_beats = new_beats,
+       ecg_gaps = new_gaps)
+}
+
+# Clear a gap
+clear_gap <- function(data, click, beats, gaps) {
+  new_gaps <- gaps
+  # Look for a gap under the click and remove it
+  gap <- which(click$x > gaps$timestamp_begin & click$x < gaps$timestamp_end)
+  if (length(gap) == 1)
+    new_gaps <- dplyr::slice(gaps, -gap)
+
+  list(heart_beats = beats,
+       ecg_gaps = new_gaps)
+}
+
+# Set beat threshold
+beat_thr <- function(data, click, beats, gaps) {
+  # Look for peaks in 1s windows
+  window_size <- 100
+  local_peaks <- zoo::rollapply(data$ecg,
+                                window_size,
+                                function(x) which.max(x) == window_size / 2,
+                                partial = TRUE)
+
+  # Remove local peaks under threshold
+  local_peaks[data$ecg < click$y] <- FALSE
+
+  # Add new beats
+  new_beats <- rbind(beats, data[local_peaks,]) %>%
+    dplyr::arrange(timestamp) %>%
+    dplyr::distinct()
+
+  # Remove new beats if under gap
+  # Remove beats under gap
+  if (!is.null(gaps)) {
+    visible_gaps <- dplyr::filter(gaps,
+                                  timestamp_end >= min(data$timestamp),
+                                  timestamp_begin <= max(data$timestamp))
+    if (nrow(visible_gaps) > 0) {
+      # utility function, checks if a timestamp falls in any visible gap
+      is_under_gap <- function(t) {
+        purrr::map(t, function(t) {
+          any(t >= visible_gaps$timestamp_begin &
+                t <= visible_gaps$timestamp_end)
+        })
       }
-    } else if (!is.null(brush)) {
-      if (mode == 3) { # add gap
-        nearest_ecg <- integer(2)
-        nearest_ecg[1] <- which.min(abs(brush$xmin - as.numeric(data$timestamp)))
-        nearest_ecg[2] <- which.min(abs(brush$xmax - as.numeric(data$timestamp)))
-        gaps <- rbind(gaps,
-                      tibble::tibble(timestamp_begin = data$timestamp[nearest_ecg[1]],
-                                     timestamp_end = data$timestamp[nearest_ecg[2]]))
-      }
+      # data frame of beats under gaps
+      gap_beats <- dplyr::mutate(new_beats,
+                                 under_gap = is_under_gap(timestamp)) %>%
+        dplyr::filter(under_gap)
+      # anti join gap beats out of new beats
+      new_beats <- dplyr::anti_join(new_beats, gap_beats, by = "timestamp")
     }
+  }
 
-    # Collapse overlapping gaps
-    merge_gaps <- function(.gaps, i) {
-      # Merge a gap with the one after it
-      .gaps$timestamp_end[i] <- max(.gaps$timestamp_end[c(i, i + 1)])
-      dplyr::slice(.gaps, -(i + 1))
-    }
-    gaps <-dplyr:: arrange(gaps, timestamp_begin)
-    overlaps <- gaps$timestamp_end >= dplyr::lead(gaps$timestamp_begin,
-                                                  default = dplyr::last(data$timestamp + 1))
-    while (any(overlaps)) {
-      overlap <- dplyr::first(which(overlaps))
-      gaps <- merge_gaps(gaps, overlap)
-      overlaps <- gaps$timestamp_end >= dplyr::lead(gaps$timestamp_begin,
-                                                    default = dplyr::last(data$timestamp + 1))
-    }
+  list(heart_beats = new_beats,
+       ecg_gaps = gaps)
+}
 
-    # Create plot
-    # Align time zone with profile plots
-    tz <- lubridate::tz(data_sparse$timestamp)
-    if (tz == "")
-      tz <- Sys.timezone()
-    p <- ggplot2::ggplot(data_sparse, ggplot2::aes(timestamp, ecg)) +
-      ggplot2::geom_line(size = 0.1) +
-      ggplot2::geom_point(data = beats_visible,
-                          shape = 3,
-                          color = "red") +
-      ggplot2::geom_rect(ggplot2::aes(xmin = gap_xmin,
-                                      xmax = gap_xmax,
-                                      ymin = gap_ymin,
-                                      ymax = gap_ymax),
-                         gaps_visible,
-                         inherit.aes = FALSE,
-                         fill = "blue",
-                         alpha = 0.1) +
-      ggplot2::scale_x_datetime(date_labels = "%H:%M:%S", timezone = tz) +
-      ggplot2::ylim(0, 4095) +
-      ggplot2::labs(title = sprintf("beats:%d;gaps:%d", nrow(beats), nrow(gaps))) +
-      ggplot2::theme_classic() +
-      ggplot2::theme(axis.title = ggplot2::element_blank())
-    list(p, beats, gaps)
-  }, warning = function(e) browser())
+# Update plot data
+subdata <- function(data, brush) {
+  shiny::req(data, brush)
+  dplyr::filter(data,
+                timestamp >= brush$xmin,
+                timestamp <= brush$xmax)
 }
 
 # prepare_beats
