@@ -14,7 +14,7 @@
 #' @return A \link[gganimate]{gif_image} object
 #'
 #' @examples
-#' animate_hr(ecg_bw190918_62R, beats_bw190918_62R, which_beats = 17:23, big = TRUE)
+#' animate_hr(ecg_bw190918_62R, beats_bw190918_62R, which_beats = 44:50, big = TRUE)
 #'
 #' @md
 #' @export

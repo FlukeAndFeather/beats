@@ -1,5 +1,5 @@
 # Plot an ECG profile
-plot_ecg <- function(data, beats = NULL, gaps = NULL, detail = FALSE) {
+plot_profile <- function(data, beats = NULL, gaps = NULL, detail = FALSE) {
   shiny::req(data)
 
   # Maximum 10,000 points

@@ -73,16 +73,16 @@ hr_server <- function(data) {
     })
 
     # Data plot (profile of all data)
-    output$data_plot <- shiny::renderPlot(plot_ecg(values$ecg_data))
+    output$data_plot <- shiny::renderPlot(plot_profile(values$ecg_data))
     # Deploy plot (profile of deployment data)
-    output$deploy_plot <- shiny::renderPlot(plot_ecg(values$ecg_deploy,
-                                                     values$heart_beats,
-                                                     values$ecg_gaps))
+    output$deploy_plot <- shiny::renderPlot(plot_profile(values$ecg_deploy,
+                                                         values$heart_beats,
+                                                         values$ecg_gaps))
     # Detail plot (zoomed in data)
-    output$detail_plot <- shiny::renderPlot(plot_ecg(values$ecg_detail,
-                                                     values$heart_beats,
-                                                     values$ecg_gaps,
-                                                     detail = TRUE))
+    output$detail_plot <- shiny::renderPlot(plot_profile(values$ecg_detail,
+                                                         values$heart_beats,
+                                                         values$ecg_gaps,
+                                                         detail = TRUE))
 
     # Download CSV
     output$output_csv <- shiny::downloadHandler(
