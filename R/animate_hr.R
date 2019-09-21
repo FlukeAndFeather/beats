@@ -21,7 +21,7 @@
 animate_hr <- function(ecg, beats, which_beats = NULL, big = FALSE) {
   # Check if required packages are installed
   required_packages <- c("gganimate", "gifski", "transformr")
-  if (any(!required_packages %in% installed.packages())) {
+  if (any(!required_packages %in% utils::installed.packages())) {
     stop("To use animate_hr install gganimate, gifski, and transformr")
   }
 
