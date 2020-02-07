@@ -1,12 +1,16 @@
-Package: beats
 Type: Package
+Package: beats
 Title: Import and Process ECG Data
 Version: 0.1.1
-Authors@R: person("Max", "Czapanskiy", email = "maxczapanskiy@gmail.com",
-                  role = c("aut", "cre"))
+Authors@R: 
+    person(given = "Max",
+           family = "Czapanskiy",
+           role = c("aut", "cre"),
+           email = "maxczapanskiy@gmail.com")
 Maintainer: Max Czapanskiy <maxczapanskiy@gmail.com>
-Description: Designed to work with UFI devices. Reads binary data files (UBE)
-    and provides a Shiny app for finding and exporting heart beats.
+Description: Designed to work with UFI devices. Reads binary
+    data files (UBE) and provides a Shiny app for finding and exporting
+    heart beats.
 License: GPL-3
 Depends:
     R (>= 2.10)
@@ -22,12 +26,10 @@ Imports:
     tibble,
     zeallot,
     zoo
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 6.1.1
 Suggests: 
     gganimate,
     gifski,
-    plotly,
-    transformr,
-    testthat
+    plotly
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
