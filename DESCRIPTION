@@ -8,6 +8,8 @@ Maintainer: Max Czapanskiy <maxczapanskiy@gmail.com>
 Description: Designed to work with UFI devices. Reads binary data files (UBE)
     and provides a Shiny app for finding and exporting heart beats.
 License: GPL-3
+Depends:
+    R (>= 2.10)
 Imports:
     assertable,
     assertthat,
@@ -27,4 +29,5 @@ Suggests:
     gganimate,
     gifski,
     plotly,
-    transformr
+    transformr,
+    testthat

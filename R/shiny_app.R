@@ -2,11 +2,6 @@
 
 # UI
 hr_ui <- shiny::fillPage(
-  shiny::tags$script('
-    $(document).on("keypress", function (e) {
-              Shiny.onInputChange("keypress", e.which);
-              });
-              '),
   shiny::sidebarLayout(
     shiny::sidebarPanel(shiny::radioButtons("mode",
                                             "Interaction mode",
@@ -39,11 +34,11 @@ hr_server <- function(data) {
 
     # For testing
     exportTestValues(
-      ecg_data = values$ecg_data,
-      ecg_deploy = values$ecg_deploy,
-      ecg_detail = values$ecg_detail,
-      heart_beats = values$heart_beats,
-      ecg_gaps = values$ecg_gaps
+      ecg_data = { values$ecg_data},
+      ecg_deploy = { values$ecg_deploy },
+      ecg_detail = { values$ecg_detail },
+      heart_beats = { values$heart_beats },
+      ecg_gaps = { values$ecg_gaps }
     )
 
     # When brushing profiles, remove downstream brushes and update data
