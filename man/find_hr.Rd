@@ -43,7 +43,7 @@ brushing the data will add/clear heart beats and gaps.
 There are five interaction modes. In "Add heart beat" mode, clicking will
 add a heart beat on the nearest peak (should be the QRS complex). "Clear
 heart beat" will remove the nearest beat. Use "Add gap" to brush areas
-with unusable data, to avoid artifically low heart rates. Overlapping gaps
+with unusable data, to avoid artificially low heart rates. Overlapping gaps
 are merged automatically. In "Clear gap" mode, click on gaps to clear
 them. "Set beat threshold" adds heart beats in bulk. Clicking will add a
 heart beat to every peak higher than the click point. This will only add

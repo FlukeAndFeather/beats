@@ -16,7 +16,7 @@ by default)}
 Requires package "plotly".}
 }
 \value{
-A gpplot object if not interactive, a plotly object otherwise.
+A ggplot object if not interactive, a plotly object otherwise.
 }
 \description{
 \code{plot_ecg} plots a heat rate profile.

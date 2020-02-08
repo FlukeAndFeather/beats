@@ -7,7 +7,7 @@
 #' by default)
 #' @param interactive Should the plot be interactive? FALSE by default.
 #' Requires package "plotly".
-#' @return A gpplot object if not interactive, a plotly object otherwise.
+#' @return A ggplot object if not interactive, a plotly object otherwise.
 #' @export
 plot_ecg <- function(data, max_points = 1e4, interactive = FALSE) {
   # Check inputs
