@@ -6,12 +6,13 @@ Authors@R:
     person(given = "Max",
            family = "Czapanskiy",
            role = c("aut", "cre"),
-           email = "maxczapanskiy@gmail.com")
+           email = "maxczapanskiy@gmail.com",
+           comment = c("ORCID-ID" = "0000-0002-6302-905X"))
 Maintainer: Max Czapanskiy <maxczapanskiy@gmail.com>
 Description: Designed to work with UFI devices. Reads binary
     data files (UBE) and provides a Shiny app for finding and exporting
     heart beats.
-License: GPL-3
+License: MIT + file LICENSE
 Depends:
     R (>= 2.10)
 Imports:
@@ -29,7 +30,11 @@ Imports:
 Suggests: 
     gganimate,
     gifski,
-    plotly
+    plotly,
+    png,
+    testthat (>= 2.1.0),
+    transformr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.0.2
+Roxygen: list(markdown = TRUE)

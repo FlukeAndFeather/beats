@@ -11,7 +11,7 @@ Designed to work with UFI devices. Reads binary
     heart beats.
 }
 \author{
-\strong{Maintainer}: Max Czapanskiy \email{maxczapanskiy@gmail.com}
+\strong{Maintainer}: Max Czapanskiy \email{maxczapanskiy@gmail.com} (0000-0002-6302-905X)
 
 }
 \keyword{internal}

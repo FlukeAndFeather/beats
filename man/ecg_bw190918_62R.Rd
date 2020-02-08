@@ -6,14 +6,17 @@
 \title{ECG of a blue whale}
 \format{A data frame with 234,001 rows and two variables:
 \describe{
-  \item{timestamp}{time of record, in POSIXct format}
-  \item{ecg}{value from ECG recorder in engineering units, ranges 0-4095}
+\item{timestamp}{time of record, in POSIXct format}
+\item{ecg}{value from ECG recorder in engineering units, ranges 0-4095}
 }}
 \usage{
 ecg_bw190918_62R
 }
 \description{
 A dataset containing the ECG record of a blue whale, collected 2019-09-18
-off the coast of Big Sur, CA under NMFS permit no. #####.
+off the coast of Big Sur, CA under NMFS permit no. 16111.
+}
+\references{
+Goldbogen, J. A., Cade, D. E., Calambokidis, J., Czapanskiy, M. F., Fahlbusch, J., Friedlaender, A. S., … Ponganis, P. J. (2019). Extreme bradycardia and tachycardia in the world’s largest animal. \emph{Proceedings of the National Academy of Sciences, 116}(50), 25329–25332. doi: 10.1073/pnas.1914273116
 }
 \keyword{datasets}

@@ -14,13 +14,15 @@
 #' @return A \link[gganimate]{gif_image} object
 #'
 #' @examples
-#' animate_hr(ecg_bw190918_62R, beats_bw190918_62R, which_beats = 44:50, big = TRUE)
+#' \dontrun{
+#'   animate_hr(ecg_bw190918_62R, beats_bw190918_62R, which_beats = 44:50, big = TRUE)
+#' }
 #'
 #' @md
 #' @export
 animate_hr <- function(ecg, beats, which_beats = NULL, big = FALSE) {
   # Check if required packages are installed
-  required_packages <- c("gganimate", "gifski", "transformr")
+  required_packages <- c("gganimate", "gifski", "png", "transformr")
   if (any(!required_packages %in% utils::installed.packages())) {
     stop("To use animate_hr install gganimate, gifski, and transformr")
   }

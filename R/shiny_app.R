@@ -32,15 +32,6 @@ hr_server <- function(data) {
   shiny::shinyServer(function(input, output, session) {
     values <- shiny::reactiveValues(ecg_data = data)
 
-    # For testing
-    exportTestValues(
-      ecg_data = { values$ecg_data},
-      ecg_deploy = { values$ecg_deploy },
-      ecg_detail = { values$ecg_detail },
-      heart_beats = { values$heart_beats },
-      ecg_gaps = { values$ecg_gaps }
-    )
-
     # When brushing profiles, remove downstream brushes and update data
     shiny::observeEvent(input$data_brush, {
       session$resetBrush("deploy_brush")
