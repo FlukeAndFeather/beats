@@ -1,6 +1,6 @@
 Type: Package
 Package: beats
-Title: Import and Process ECG Data
+Title: Heartbeat Detection in Electrocardiogram Data
 Version: 0.1.1
 Authors@R: 
     person(given = "Max",
@@ -9,10 +9,12 @@ Authors@R:
            email = "maxczapanskiy@gmail.com",
            comment = c("ORCID-ID" = "0000-0002-6302-905X"))
 Maintainer: Max Czapanskiy <maxczapanskiy@gmail.com>
-Description: Designed to work with UFI devices. Reads binary
-    data files (UBE) and provides a Shiny app for finding and exporting
-    heart beats.
+Description: Import and process electrocardiogram (ECG) data.
+    Reads binary data files from UFI devices (.ube files) and provides a
+    Shiny app for finding and exporting heart beats.
 License: MIT + file LICENSE
+URL: https://github.com/FlukeAndFeather/beats
+BugReports: https://github.com/FlukeAndFeather/beats/issues
 Depends:
     R (>= 2.10)
 Imports:
@@ -36,5 +38,5 @@ Suggests:
     transformr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
 Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.0.2

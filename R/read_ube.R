@@ -18,7 +18,7 @@ read_ube <- function(ube_path) {
   # First 32 bytes are the download timestamp
   dl_time <- rawToChar(ube_raw[1:32], multiple = TRUE) %>%
     paste(collapse = "") %>%
-    lubridate::mdy_hms()
+    lubridate::mdy_hms(tz = "UTC")
 
   # Next 5 bytes are the time of recording beginning
   # Not sure what bytes 38-40 are
@@ -29,7 +29,8 @@ read_ube <- function(ube_path) {
                               mdhms[2],                          # day
                               mdhms[3],                          # hour
                               mdhms[4],                          # minute
-                              mdhms[5])                          # second
+                              mdhms[5],                          # second
+                              tz = "UTC")
 
   # Remainder is data
   # Each record is 2 bytes, of the format 0xCddd where C is the channel (2 for
