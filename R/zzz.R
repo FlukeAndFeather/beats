@@ -1,5 +1,4 @@
 #' @importFrom dplyr %>%
-#' @importFrom zeallot %<-%
 
 utils::globalVariables(c("bpm_lbl", "ecg", "freq_bpm", "freq_hz", "gap_xmax",
                          "gap_xmin", "installed.packages", "period_s",

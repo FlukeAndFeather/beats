@@ -10,7 +10,7 @@ read_ube(ube_path)
 \item{ube_path}{Path to UBE file.}
 }
 \value{
-A tibble with columns timestamp (POSIXct) and ecg (numeric)
+A data.frame with columns timestamp (POSIXct) and ecg (numeric)
 }
 \description{
 \code{read_ube} parses a binary UBE file, returning a data frame with ECG

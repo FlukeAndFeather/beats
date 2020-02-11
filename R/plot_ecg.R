@@ -11,11 +11,11 @@
 #' @export
 plot_ecg <- function(data, max_points = 1e4, interactive = FALSE) {
   # Check inputs
-  assertthat::assert_that(is.data.frame(data))
-  assertable::assert_colnames(data, c("timestamp", "ecg"), only_colnames = FALSE)
-  assertthat::assert_that(is.numeric(max_points))
-  assertthat::assert_that(length(max_points) == 1)
-  assertthat::assert_that(max_points > 0)
+  stopifnot(is.data.frame(data))
+  stopifnot(c("timestamp", "ecg") %in% data)
+  stopifnot(is.numeric(max_points))
+  stopifnot(length(max_points) == 1)
+  stopifnot(max_points > 0)
   max_points <- as.integer(max_points)
 
   if (interactive && !requireNamespace("plotly", quietly = TRUE)) {

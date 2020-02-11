@@ -22,20 +22,18 @@
 #' @export
 animate_hr <- function(ecg, beats, which_beats = NULL, big = FALSE) {
   # Check if required packages are installed
-  required_packages <- c("gganimate", "gifski", "png", "transformr")
+  required_packages <- c("gganimate", "gifski", "png")
   if (any(!required_packages %in% utils::installed.packages())) {
     stop("To use animate_hr install gganimate, gifski, png, and transformr")
   }
 
   # Check input data
-  assertable::assert_colnames(ecg,
-                              c("timestamp", "ecg"),
-                              only_colnames = FALSE,
-                              quiet = TRUE)
-  assertable::assert_colnames(beats,
-                              c("timestamp", "ecg", "freq_bpm"),
-                              only_colnames = FALSE,
-                              quiet = TRUE)
+  if (!all(c("timestamp", "ecg") %in% colnames(ecg))) {
+    stop("Columns of table ecg must include 'timestamp' and 'ecg'.")
+  }
+  if (!all(c("timestamp", "ecg", "freq_bpm") %in% colnames(beats))) {
+    stop("Columns of table beats must include 'timestamp', 'ecg', and 'freq_bpm'.")
+  }
   if (!is.null(which_beats)) {
     if (!is.numeric(which_beats))
       stop("which_beats must be numeric")

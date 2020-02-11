@@ -18,24 +18,19 @@ BugReports: https://github.com/FlukeAndFeather/beats/issues
 Depends:
     R (>= 2.10)
 Imports:
-    assertable,
-    assertthat,
     dplyr,
     ggplot2,
     lubridate,
     purrr,
     readr,
     shiny,
-    tibble,
-    zeallot,
     zoo
 Suggests: 
     gganimate,
     gifski,
     plotly,
     png,
-    testthat (>= 2.1.0),
-    transformr
+    testthat (>= 2.1.0)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

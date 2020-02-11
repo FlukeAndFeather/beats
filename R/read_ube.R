@@ -4,7 +4,7 @@
 #' records and timestamps
 #'
 #' @param ube_path Path to UBE file.
-#' @return A tibble with columns timestamp (POSIXct) and ecg (numeric)
+#' @return A data.frame with columns timestamp (POSIXct) and ecg (numeric)
 #' @examples
 #' # File path to sample data
 #' fp <- system.file("extdata", "max_ecg_190826b.ube", package = "beats")
@@ -64,8 +64,8 @@ read_ube <- function(ube_path) {
   ecg_time <- record_start + (seq_along(ecg_data) - 1) / 100
 
   # Create a result table and set an attribute for the creation time.
-  result <- tibble::tibble(timestamp = ecg_time,
-                           ecg = ecg_data)
+  result <- data.frame(timestamp = ecg_time,
+                       ecg = ecg_data)
   attr(result, "created") <- dl_time
   result
 }
