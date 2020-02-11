@@ -21,7 +21,7 @@ more than 20s. This prevents R from crashing if it tries to animate too
 much.}
 }
 \value{
-A \link[gganimate]{gif_image} object
+A \code{\link[gganimate]{gif_image}} object
 }
 \description{
 \code{animate_hr} produces a GIF of heart beats in (close to) real time.

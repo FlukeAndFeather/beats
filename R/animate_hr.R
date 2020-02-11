@@ -11,7 +11,7 @@
 #' @param big If FALSE (default) then throw an error if the animation will last
 #' more than 20s. This prevents R from crashing if it tries to animate too
 #' much.
-#' @return A \link[gganimate]{gif_image} object
+#' @return A \code{\link[gganimate]{gif_image}} object
 #'
 #' @examples
 #' \dontrun{
@@ -24,7 +24,7 @@ animate_hr <- function(ecg, beats, which_beats = NULL, big = FALSE) {
   # Check if required packages are installed
   required_packages <- c("gganimate", "gifski", "png", "transformr")
   if (any(!required_packages %in% utils::installed.packages())) {
-    stop("To use animate_hr install gganimate, gifski, and transformr")
+    stop("To use animate_hr install gganimate, gifski, png, and transformr")
   }
 
   # Check input data
