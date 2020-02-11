@@ -24,7 +24,7 @@ animate_hr <- function(ecg, beats, which_beats = NULL, big = FALSE) {
   # Check if required packages are installed
   required_packages <- c("gganimate", "gifski", "png")
   if (any(!required_packages %in% utils::installed.packages())) {
-    stop("To use animate_hr install gganimate, gifski, png, and transformr")
+    stop("To use animate_hr install gganimate, gifski, and png")
   }
 
   # Check input data
