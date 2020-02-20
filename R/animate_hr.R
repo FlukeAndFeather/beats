@@ -14,7 +14,7 @@
 #' @return A \code{\link[gganimate]{gif_image}} object
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'   animate_hr(ecg_bw190918_62R, beats_bw190918_62R, which_beats = 44:50, big = TRUE)
 #' }
 #'

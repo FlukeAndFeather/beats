@@ -39,14 +39,14 @@
 #'   and "Finish and return data.frame" quits the tool and returns the result.
 #'
 #' @examples
-#' \dontrun{
-#' # File path to sample data
-#' fp <- system.file("extdata", "max_ecg_190826b.ube", package = "beats")
-#' # Read ube file
-#' ecg_data <- read_ube(fp)
-#' # Launch GUI
-#' heartbeats <- find_hr(ecg_data)
-#' # In this heart rate profile, zoom into 12:53:20 - 12:54:25 to see actual beats
+#' if (interactive()) {
+#'   # File path to sample data
+#'   fp <- system.file("extdata", "max_ecg_190826b.ube", package = "beats")
+#'   # Read ube file
+#'   ecg_data <- read_ube(fp)
+#'   # Launch GUI
+#'   heartbeats <- find_hr(ecg_data)
+#'   # In this heart rate profile, zoom into 12:53:20 - 12:54:25 to see actual beats
 #' }
 #' @md
 #' @export

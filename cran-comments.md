@@ -1,3 +1,10 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Replaced `\dontrun{}` with `\donttest{}` for long running code [animate_hr()]
+
+* Replaced `\dontrun{}` with `if (interactive)` for Shiny app
+
 ## Test environments
 * local R installation, R 3.6.2
 * ubuntu 16.04 (on travis-ci), R 3.6.2
